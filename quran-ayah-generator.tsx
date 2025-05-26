@@ -74,13 +74,6 @@ export default function QuranAyahGenerator() {
     }
   }, [surah, surahList])
 
-  // Sync surahAyah string for backend compatibility
-  useEffect(() => {
-    if (surah && ayah) {
-      setSurahAyah(`${surah}:${ayah}`)
-    }
-  }, [surah, ayah])
-
   // Fetch ayah text when surah or ayah changes
   useEffect(() => {
     if (surah && ayah) {
@@ -93,6 +86,13 @@ export default function QuranAyahGenerator() {
         .catch(() => setAyahText(""));
     } else {
       setAyahText("");
+    }
+  }, [surah, ayah]);
+
+  // Sync surahAyah string for backend compatibility
+  useEffect(() => {
+    if (surah && ayah) {
+      setSurahAyah(`${surah}:${ayah}`)
     }
   }, [surah, ayah])
 
