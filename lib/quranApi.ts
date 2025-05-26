@@ -1,5 +1,5 @@
 // Utility for Quran Image API backend calls
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend-k1tq.onrender.com/api";
 
 export async function fetchAyahImage(sura: number, ayah: number): Promise<string> {
   // Returns image URL
