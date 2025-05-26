@@ -183,6 +183,24 @@ export default function QuranAyahGenerator() {
                     <div className="text-gray-400 text-center w-full">No ayah image found. Enter a valid surah:ayah above.</div>
                   )}
                 </div>
+                {/* Download Button */}
+                {(compositeImageUrl || ayahImageUrl) && (
+                  <a
+                    href={compositeImageUrl || ayahImageUrl || '#'}
+                    download={
+                      compositeImageUrl
+                        ? `composite-image.png`
+                        : ayahImageUrl
+                        ? `ayah-image.png`
+                        : undefined
+                    }
+                  >
+                    <Button className="w-full bg-blue-500 hover:bg-blue-700 mt-2" size="lg">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Image
+                    </Button>
+                  </a>
+                )}
                 {/* Show Ayah Image Button */}
                 {/* <Button onClick={handleShowAyahImage} className="w-full bg-blue-600 hover:bg-blue-700" size="lg" disabled={loading}>
                   Show Ayah Image
