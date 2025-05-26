@@ -24,6 +24,10 @@ export default function QuranAyahGenerator() {
   const [compositeImageUrl, setCompositeImageUrl] = useState<string | null>(null)
   const [inputError, setInputError] = useState<string | null>(null)
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null)
+  const [surah, setSurah] = useState<number | null>(null)
+  const [ayah, setAyah] = useState<number | null>(null)
+  const [surahList, setSurahList] = useState<any[]>([])
+  const [ayahList, setAyahList] = useState<number[]>([])
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -49,6 +53,32 @@ export default function QuranAyahGenerator() {
       setBackgroundImage(DEFAULT_BG_URL)
     }
   }, [])
+
+  // Fetch surah metadata for dropdown
+  useEffect(() => {
+    fetch("https://api.quran.com/api/v4/chapters?language=en")
+      .then(res => res.json())
+      .then(data => setSurahList(data.chapters || []))
+      .catch(() => setSurahList([]))
+  }, [])
+
+  // Update ayah list when surah changes
+  useEffect(() => {
+    if (surah !== null && surahList.length > 0) {
+      const found = surahList.find((s: any) => s.id === surah)
+      if (found) {
+        setAyahList(Array.from({ length: found.verses_count }, (_, i) => i + 1))
+        setAyah(1)
+      }
+    }
+  }, [surah, surahList])
+
+  // Sync surahAyah string for backend compatibility
+  useEffect(() => {
+    if (surah && ayah) {
+      setSurahAyah(`${surah}:${ayah}`)
+    }
+  }, [surah, ayah])
 
   // Generate composite image via backend
   const handleGenerateComposite = async () => {
@@ -114,18 +144,32 @@ export default function QuranAyahGenerator() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* Surah and Ayah Input */}
+                {/* Surah and Ayah Selectors */}
                 <div className="space-y-2">
-                  <Label htmlFor="surah-ayah">Surah:Ayah Reference</Label>
-                  <Input
-                    id="surah-ayah"
-                    value={surahAyah}
-                    onChange={(e) => setSurahAyah(e.target.value)}
-                    placeholder="e.g., 2:255"
-                    className="text-lg"
-                  />
-                  {inputError && <p className="text-sm text-red-500">{inputError}</p>}
-                  <p className="text-sm text-gray-500">Format: Surah number : Ayah number</p>
+                  <Label htmlFor="surah-select">Surah</Label>
+                  <Select value={surah?.toString() || ""} onValueChange={val => setSurah(Number(val))}>
+                    <SelectTrigger id="surah-select" className="text-lg">
+                      <SelectValue placeholder="Select Surah" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {surahList.map(s => (
+                        <SelectItem key={s.id} value={s.id.toString()}>{s.id}. {s.name_simple} ({s.name_arabic})</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ayah-select">Ayah</Label>
+                  <Select value={ayah?.toString() || ""} onValueChange={val => setAyah(Number(val))} disabled={!surah}>
+                    <SelectTrigger id="ayah-select" className="text-lg">
+                      <SelectValue placeholder="Select Ayah" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ayahList.map(a => (
+                        <SelectItem key={a} value={a.toString()}>{a}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 {/* Background Upload */}
                 <div className="space-y-2">
