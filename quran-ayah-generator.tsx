@@ -69,7 +69,8 @@ export default function QuranAyahGenerator() {
       const found = surahList.find((s: any) => s.id === surah)
       if (found) {
         setAyahList(Array.from({ length: found.verses_count }, (_, i) => i + 1))
-        setAyah(1)
+        // Only reset ayah to 1 if surah changed, not on every render
+        setAyah(prev => (prev && prev <= found.verses_count ? prev : 1))
       }
     }
   }, [surah, surahList])
@@ -77,10 +78,11 @@ export default function QuranAyahGenerator() {
   // Fetch ayah text when surah or ayah changes
   useEffect(() => {
     if (surah && ayah) {
-      fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surah}&verse_number=${ayah}`)
+      fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surah}`)
         .then(res => res.json())
         .then(data => {
-          const verse = data.verses?.[0]?.text_uthmani || "";
+          // verses are 0-indexed in the API response
+          const verse = data.verses?.[ayah - 1]?.text_uthmani || "";
           setAyahText(verse);
         })
         .catch(() => setAyahText(""));
