@@ -28,6 +28,7 @@ export default function QuranAyahGenerator() {
   const [ayah, setAyah] = useState<number | null>(null)
   const [surahList, setSurahList] = useState<any[]>([])
   const [ayahList, setAyahList] = useState<number[]>([])
+  const [ayahText, setAyahText] = useState<string>("")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -77,6 +78,21 @@ export default function QuranAyahGenerator() {
   useEffect(() => {
     if (surah && ayah) {
       setSurahAyah(`${surah}:${ayah}`)
+    }
+  }, [surah, ayah])
+
+  // Fetch ayah text when surah or ayah changes
+  useEffect(() => {
+    if (surah && ayah) {
+      fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${surah}&verse_number=${ayah}`)
+        .then(res => res.json())
+        .then(data => {
+          const verse = data.verses?.[0]?.text_uthmani || "";
+          setAyahText(verse);
+        })
+        .catch(() => setAyahText(""));
+    } else {
+      setAyahText("");
     }
   }, [surah, ayah])
 
@@ -173,14 +189,7 @@ export default function QuranAyahGenerator() {
                   {/* Show selected Ayah text below */}
                   {surah && ayah && (
                     <div className="mt-2 p-3 rounded bg-gray-50 border text-lg text-gray-800">
-                      {(() => {
-                        const surahObj = surahList.find(s => s.id === surah)
-                        const ayahObj = surahObj?.verses?.find?.((v: any) => v.id === ayah)
-                        if (ayahObj && ayahObj.text_simple) {
-                          return <span>{ayahObj.text_simple}</span>
-                        }
-                        return <span>Ayah text will appear here after selection.</span>
-                      })()}
+                      {ayahText ? ayahText : "Ayah text will appear here after selection."}
                     </div>
                   )}
                 </div>
