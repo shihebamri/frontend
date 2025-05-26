@@ -170,6 +170,19 @@ export default function QuranAyahGenerator() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {/* Show selected Ayah text below */}
+                  {surah && ayah && (
+                    <div className="mt-2 p-3 rounded bg-gray-50 border text-lg text-gray-800">
+                      {(() => {
+                        const surahObj = surahList.find(s => s.id === surah)
+                        const ayahObj = surahObj?.verses?.find?.((v: any) => v.id === ayah)
+                        if (ayahObj && ayahObj.text_simple) {
+                          return <span>{ayahObj.text_simple}</span>
+                        }
+                        return <span>Ayah text will appear here after selection.</span>
+                      })()}
+                    </div>
+                  )}
                 </div>
                 {/* Background Upload */}
                 <div className="space-y-2">
